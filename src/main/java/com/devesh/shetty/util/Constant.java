@@ -8,4 +8,6 @@ public class Constant {
   
   public static final String SCHEMA_PATH_COULMN_NAME = "schema_path";
   
+  public static final String SCHEMA_DIRECTORY = "schema";
+  
 }
