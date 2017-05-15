@@ -1,5 +1,3 @@
 {
-  "source": "/home/alice/image.iso",
-  "destination": "/mnt/storage",
-  "timeout": 32
+  "source": "/home/alice/image.iso"
 }

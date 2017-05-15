@@ -1,5 +1,15 @@
 {
-  "songs":{
-      "happy":[{"name": "Song1", "link": "http://files.mp3slash.net/download/87fa509f048147b8ef54f6614f453b6b"}, {"name":"Song2", "link": "http://320net.songspk.onl/Singles/No Make Up Feat. Bohemia Bilal Saeed - 320Kbps [Songspk.DESI].mp3"}]
-  }
-}
+  "type": "object",
+  "properties": {
+    "source": {
+      "type": "string"
+    },
+    "destination": {
+      "type": "string"
+    },
+    "timeout": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 32767
+} },
+  "required": ["source", "destination"]
