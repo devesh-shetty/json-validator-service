@@ -2,7 +2,10 @@ package com.devesh.shetty.controller;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.devesh.shetty.model.ActionResponse;
 import com.devesh.shetty.model.Schema;
 import com.devesh.shetty.service.ISchemaDetailService;
 
@@ -24,22 +28,30 @@ public class JsonValidatorController {
   private ISchemaDetailService schemaDetailService;
 
   /**
-   * Return the schema mapped by schemaId
+   * Return the json mapped by schemaId
    * 
    * @param schemaId
-   * @return schema
+   * @return resource
    */
   @GetMapping("/schema/{schemaId}")
-  public Schema fetchSchemaBySchemaId(@PathVariable String schemaId) {
-    return schemaDetailService.fetchSchemaBySchemaId(schemaId);
+  public ResponseEntity<Resource> fetchSchemaBySchemaId(@PathVariable String schemaId) {
+    Schema schema = schemaDetailService.fetchSchemaBySchemaId(schemaId);
+    
+    //return the resource stream of the json  
+    ByteArrayResource resource = new ByteArrayResource(schema.getFileData());
+    return ResponseEntity.ok()
+            .contentLength(schema.getFileData().length)
+            .contentType(MediaType.parseMediaType("application/octet-stream"))
+            .body(resource);
+    
   }
 
   @RequestMapping(value = "/schema/{schemaId}", method = RequestMethod.PUT)
-  public ResponseEntity<?> handleFileUpload(@PathVariable String schemaId, @RequestParam(value = "file", required = true) MultipartFile file) {
+  public ResponseEntity<ActionResponse> handleFileUpload(@PathVariable String schemaId,
+      @RequestParam(value = "file", required = true) MultipartFile file) {
     try {
       Schema schema = new Schema(file.getBytes(), schemaId);
-      getSchemaDetailService().saveSchema(schema);
-      return new ResponseEntity("Successfully uploaded!", HttpStatus.OK);
+      return new ResponseEntity<ActionResponse>(getSchemaDetailService().saveSchema(schema), HttpStatus.OK);
     } catch (RuntimeException e) {
       LOG.error("Error while uploading.", e);
       throw e;
