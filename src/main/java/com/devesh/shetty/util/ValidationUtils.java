@@ -23,8 +23,8 @@ public final class ValidationUtils {
    * @return a JSON document
    * @throws IOException when resource is not found
    */
-  public static JsonNode loadResource(String jsonPath) throws IOException{
-    return JsonLoader.fromResource(jsonPath);
+  public static JsonNode loadResource(String documentPath) throws IOException{
+    return JsonLoader.fromPath(documentPath);
   }
   
 

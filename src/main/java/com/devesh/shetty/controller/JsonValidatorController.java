@@ -125,7 +125,7 @@ public class JsonValidatorController {
       return new ResponseEntity<ActionResponse>(actionResponse, HttpStatus.BAD_REQUEST);
       
     }
-
+    
     try {
       return new ResponseEntity<ActionResponse>(getSchemaDetailService().validateSchema(schemaId, schema),
           HttpStatus.OK);
@@ -165,7 +165,6 @@ public class JsonValidatorController {
       return new ResponseEntity<ActionResponse>(actionResponse, HttpStatus.BAD_REQUEST);
       
     }
-
   }
   
 
