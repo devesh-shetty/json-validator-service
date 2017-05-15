@@ -2,6 +2,8 @@ package com.devesh.shetty.util;
 
 public final class Constants {
 
+  private Constants(){}
+  
   // directory where the schema is stored
   public static final String SCHEMA_DIRECTORY = "schema";
 

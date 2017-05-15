@@ -8,8 +8,10 @@ import com.devesh.shetty.model.Schema;
 
 public interface ISchemaDao {
 
-  public void save(Schema schema) throws DataAccessException, NoSuchFileException, InvalidDataException;
+  public Schema save(Schema schema) throws DataAccessException, NoSuchFileException, InvalidDataException;
 
   Schema load(String schemaId) throws DataAccessException, NoSuchFileException;
+
+  String getDocumentPath(String schemaId);
   
 }

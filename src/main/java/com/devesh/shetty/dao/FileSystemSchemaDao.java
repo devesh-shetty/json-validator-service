@@ -31,11 +31,11 @@ public class FileSystemSchemaDao implements ISchemaDao {
   }
 
   @Override
-  public void save(Schema schema) throws DataAccessException, NoSuchFileException, InvalidDataException {
-    saveFileData(schema);
+  public Schema save(Schema schema) throws DataAccessException, NoSuchFileException, InvalidDataException {
+    return saveFileData(schema);
   }
 
-  private void saveFileData(Schema schema) throws DataAccessException, NoSuchFileException, InvalidDataException {
+  private Schema saveFileData(Schema schema) throws DataAccessException, NoSuchFileException, InvalidDataException {
     String path = getDirectoryPath(schema);
     // BufferedOutputStream stream = null;
     try (BufferedOutputStream stream = new BufferedOutputStream(
@@ -52,12 +52,15 @@ public class FileSystemSchemaDao implements ISchemaDao {
     Schema storedSchema = loadFromFileSystem(schema.getSchemaId());
     try {
       ValidationUtils.isJSONValid(storedSchema.getFileData());
+      return storedSchema;
     } catch (IOException e) {
       LOG.error("Invalid data received", e);
       throw new InvalidDataException(e.getMessage());
     }
 
   }
+  
+  
 
   @Override
   public Schema load(String schemaId) throws DataAccessException, NoSuchFileException {
@@ -86,6 +89,11 @@ public class FileSystemSchemaDao implements ISchemaDao {
 
   }
 
+  @Override
+  public String getDocumentPath(String schemaId){
+    return getFilePath(schemaId);
+  }
+  
   private String getFilePath(String schemaId) {
     String dirPath = getDirectoryPath(schemaId);
     StringBuilder sb = new StringBuilder();

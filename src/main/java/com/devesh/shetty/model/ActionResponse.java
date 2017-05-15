@@ -2,8 +2,6 @@ package com.devesh.shetty.model;
 
 import java.io.Serializable;
 
-import org.springframework.http.HttpStatus;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
