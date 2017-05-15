@@ -20,12 +20,12 @@ public class Schema implements Serializable {
     this.schemaId = schemaId;
   }
 
-  public String getFileName() {
+  public String getSchemaId() {
     return schemaId;
   }
 
-  public void setFileName(String fileName) {
-    this.schemaId = fileName;
+  public void setSchemaId(String schemaId) {
+    this.schemaId = schemaId;
   }
 
   public byte[] getFileData() {

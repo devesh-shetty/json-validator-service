@@ -15,8 +15,10 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import com.devesh.shetty.exception.DataAccessException;
+import com.devesh.shetty.exception.InvalidDataException;
 import com.devesh.shetty.model.Schema;
-import com.devesh.shetty.util.Constant;
+import com.devesh.shetty.util.Constants;
+import com.devesh.shetty.util.ValidationUtils;
 
 @Component
 public class FileSystemSchemaDao implements ISchemaDao {
@@ -25,19 +27,19 @@ public class FileSystemSchemaDao implements ISchemaDao {
 
   @PostConstruct
   public void init() {
-    createDirectory(Constant.SCHEMA_DIRECTORY);
+    createDirectory(Constants.SCHEMA_DIRECTORY);
   }
 
   @Override
-  public void save(Schema schema) throws DataAccessException {
+  public void save(Schema schema) throws DataAccessException, NoSuchFileException, InvalidDataException {
     saveFileData(schema);
   }
 
-  private void saveFileData(Schema schema) throws DataAccessException {
+  private void saveFileData(Schema schema) throws DataAccessException, NoSuchFileException, InvalidDataException {
     String path = getDirectoryPath(schema);
     // BufferedOutputStream stream = null;
     try (BufferedOutputStream stream = new BufferedOutputStream(
-        new FileOutputStream(new File(new File(path), schema.getFileName() + ".json")))) {
+        new FileOutputStream(new File(new File(path), schema.getSchemaId() + ".json")))) {
 
       stream.write(schema.getFileData());
       
@@ -45,6 +47,14 @@ public class FileSystemSchemaDao implements ISchemaDao {
       LOG.error("Error in performing operations on the file", e);
       throw new DataAccessException(e.getMessage());
       
+    }
+    
+    Schema storedSchema = loadFromFileSystem(schema.getSchemaId());
+    try {
+      ValidationUtils.isJSONValid(storedSchema.getFileData());
+    } catch (IOException e) {
+      LOG.error("Invalid data received", e);
+      throw new InvalidDataException(e.getMessage());
     }
 
   }
@@ -90,13 +100,13 @@ public class FileSystemSchemaDao implements ISchemaDao {
   }
 
   private String getDirectoryPath(Schema schema) {
-    return getDirectoryPath(schema.getFileName());
+    return getDirectoryPath(schema.getSchemaId());
   }
 
   private String getDirectoryPath(String fileName) {
     StringBuilder sb = new StringBuilder();
     // sb.append(Constant.SCHEMA_DIRECTORY).append(File.separator).append(fileName);
-    sb.append(Constant.SCHEMA_DIRECTORY);
+    sb.append(Constants.SCHEMA_DIRECTORY);
     String path = sb.toString();
     return path;
   }

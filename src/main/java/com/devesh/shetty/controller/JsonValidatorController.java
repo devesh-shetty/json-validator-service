@@ -17,11 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.devesh.shetty.exception.BusinessException;
+import com.devesh.shetty.exception.InvalidJsonException;
 import com.devesh.shetty.exception.NoSuchSchemaException;
 import com.devesh.shetty.model.ActionResponse;
 import com.devesh.shetty.model.Schema;
 import com.devesh.shetty.service.ISchemaDetailService;
-import com.devesh.shetty.util.Constant;
+import com.devesh.shetty.util.Constants;
 
 @RestController
 public class JsonValidatorController {
@@ -51,7 +52,7 @@ public class JsonValidatorController {
     } catch (NoSuchSchemaException e) {
       String message = "Schema not found: " + schemaId;
       LOG.error(message, e);
-      ActionResponse actionResponse = new ActionResponse(Constant.ACTION_FETCH, schemaId, Constant.STATUS_ERROR,
+      ActionResponse actionResponse = new ActionResponse(Constants.ACTION_FETCH, schemaId, Constants.STATUS_ERROR,
           "Schema does not exist");
       return new ResponseEntity<ActionResponse>(actionResponse, HttpStatus.NOT_FOUND);
       
@@ -71,17 +72,34 @@ public class JsonValidatorController {
     Schema schema = null;
     try {
       schema = new Schema(file.getBytes(), schemaId);
+      
     } catch (IOException e) {
       LOG.error("Failed to access the file", e);
     }
 
     try {
       return new ResponseEntity<ActionResponse>(getSchemaDetailService().saveSchema(schema), HttpStatus.OK);
+      
     } catch (BusinessException e) {
       LOG.error("Failed to save the file", e);
-      ActionResponse actionResponse = new ActionResponse(Constant.ACTION_UPLOAD, schemaId, Constant.STATUS_ERROR,
+      ActionResponse actionResponse = new ActionResponse(Constants.ACTION_UPLOAD, schemaId, Constants.STATUS_ERROR,
           "Failed to save the file");
       return new ResponseEntity<ActionResponse>(actionResponse, HttpStatus.SERVICE_UNAVAILABLE);
+      
+    } catch (NoSuchSchemaException e) {
+      String message = "Schema not stored: " + schemaId;
+      LOG.error(message, e);
+      ActionResponse actionResponse = new ActionResponse(Constants.ACTION_FETCH, schemaId, Constants.STATUS_ERROR,
+          "Schema failed to be stored");
+      return new ResponseEntity<ActionResponse>(actionResponse, HttpStatus.NOT_FOUND);
+      
+    } catch (InvalidJsonException e) {
+      String message = "Invalid JSON recieved for schemaId: " + schemaId;
+      LOG.error(message, e);
+      ActionResponse actionResponse = new ActionResponse(Constants.ACTION_FETCH, schemaId, Constants.STATUS_ERROR,
+          "Invalid JSON");
+      return new ResponseEntity<ActionResponse>(actionResponse, HttpStatus.BAD_REQUEST);
+      
     }
 
   }
