@@ -5,18 +5,23 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
+import com.devesh.shetty.exception.DataAccessException;
 import com.devesh.shetty.model.Schema;
 import com.devesh.shetty.util.Constant;
 
 @Component
 public class FileSystemSchemaDao implements ISchemaDao {
+
+  public static final Logger LOG = Logger.getLogger(FileSystemSchemaDao.class);
 
   @PostConstruct
   public void init() {
@@ -24,47 +29,57 @@ public class FileSystemSchemaDao implements ISchemaDao {
   }
 
   @Override
-  public String save(Schema schema) {
-    try {
-      saveFileData(schema);
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    return "yes";
+  public void save(Schema schema) throws DataAccessException {
+    saveFileData(schema);
   }
 
-  private void saveFileData(Schema schema) throws IOException {
+  private void saveFileData(Schema schema) throws DataAccessException {
     String path = getDirectoryPath(schema);
-    BufferedOutputStream stream = new BufferedOutputStream(
-        new FileOutputStream(new File(new File(path), schema.getFileName() + ".json")));
-    stream.write(schema.getFileData());
-    stream.close();
+    // BufferedOutputStream stream = null;
+    try (BufferedOutputStream stream = new BufferedOutputStream(
+        new FileOutputStream(new File(new File(path), schema.getFileName() + ".json")))) {
+
+      stream.write(schema.getFileData());
+      
+    } catch (IOException e) {
+      LOG.error("Error in performing operations on the file", e);
+      throw new DataAccessException(e.getMessage());
+      
+    }
+
   }
 
   @Override
-  public Schema load(String schemaId) {
-    try {
-      return loadFromFileSystem(schemaId);
-    } catch (IOException e) {
-      String message = "Error while loading document with id: " + schemaId;
-      // LOG.error(message, e);
-      throw new RuntimeException(message, e);
-    }
-
+  public Schema load(String schemaId) throws DataAccessException, NoSuchFileException {
+    return loadFromFileSystem(schemaId);
   }
 
-  private Schema loadFromFileSystem(String schemaId) throws IOException {
+  private Schema loadFromFileSystem(String schemaId) throws DataAccessException, NoSuchFileException {
     Path path = Paths.get(getFilePath(schemaId));
     Schema schema = new Schema(schemaId);
-    schema.setFileData(Files.readAllBytes(path));
-    return schema;
+
+    try {
+      schema.setFileData(Files.readAllBytes(path));
+      return schema;
+
+    } catch (NoSuchFileException e) {
+      String message = "schema with id: " + schemaId + " does not exist";
+      LOG.error(message, e);
+      throw e;
+
+    } catch (IOException e) {
+      String message = "Error while loading schema with id: " + schemaId;
+      LOG.error(message, e);
+      throw new DataAccessException(message);
+      
+    }
+
   }
 
   private String getFilePath(String schemaId) {
     String dirPath = getDirectoryPath(schemaId);
     StringBuilder sb = new StringBuilder();
-    sb.append(dirPath).append(File.separator).append(schemaId+".json");
+    sb.append(dirPath).append(File.separator).append(schemaId + ".json");
     return sb.toString();
   }
 

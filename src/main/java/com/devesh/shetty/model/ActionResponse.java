@@ -16,18 +16,18 @@ public class ActionResponse implements Serializable {
   
   private String id;
   
-  private HttpStatus status;
+  private String status;
   
   private String message;
 
-  public ActionResponse(String action, String id, HttpStatus ok) {
+  public ActionResponse(String action, String id, String status) {
     super();
     this.action = action;
     this.id = id;
-    this.status = ok;
+    this.status = status;
   }
 
-  public ActionResponse(String action, String id, HttpStatus status, String message) {
+  public ActionResponse(String action, String id, String status, String message) {
     super();
     this.action = action;
     this.id = id;
@@ -51,11 +51,11 @@ public class ActionResponse implements Serializable {
     this.id = id;
   }
 
-  public HttpStatus getStatus() {
+  public String getStatus() {
     return status;
   }
 
-  public void setStatus(HttpStatus status) {
+  public void setStatus(String status) {
     this.status = status;
   }
 

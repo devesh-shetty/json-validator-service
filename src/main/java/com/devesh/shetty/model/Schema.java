@@ -8,24 +8,24 @@ public class Schema implements Serializable {
 
   private byte[] fileData;
 
-  private String fileName;
+  private String schemaId;
 
-  public Schema(byte[] fileData, String fileName) {
+  public Schema(byte[] fileData, String schemaId) {
     super();
     this.fileData = fileData;
-    this.fileName = fileName;
+    this.schemaId = schemaId;
   }
 
   public Schema(String schemaId) {
-    this.fileName = schemaId;
+    this.schemaId = schemaId;
   }
 
   public String getFileName() {
-    return fileName;
+    return schemaId;
   }
 
   public void setFileName(String fileName) {
-    this.fileName = fileName;
+    this.schemaId = fileName;
   }
 
   public byte[] getFileData() {
